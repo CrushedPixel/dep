@@ -23,7 +23,7 @@ import (
 // * Makes it easy to attempt multiple URLs for a given import path
 type maybeSource interface {
 	// try tries to set up a source.
-	try(ctx context.Context, cachedir string) (source, error)
+	try(ctx context.Context, cachedir string) (Source, error)
 	URL() *url.URL
 	fmt.Stringer
 }
@@ -47,7 +47,7 @@ type maybeGitSource struct {
 	url *url.URL
 }
 
-func (m maybeGitSource) try(ctx context.Context, cachedir string) (source, error) {
+func (m maybeGitSource) try(ctx context.Context, cachedir string) (Source, error) {
 	ustr := m.url.String()
 	path := sourceCachePath(cachedir, ustr)
 
@@ -89,7 +89,7 @@ type maybeGopkginSource struct {
 	unstable bool
 }
 
-func (m maybeGopkginSource) try(ctx context.Context, cachedir string) (source, error) {
+func (m maybeGopkginSource) try(ctx context.Context, cachedir string) (Source, error) {
 	// We don't actually need a fully consistent transform into the on-disk path
 	// - just something that's unique to the particular gopkg.in domain context.
 	// So, it's OK to just dumb-join the scheme with the path.
@@ -133,7 +133,7 @@ type maybeBzrSource struct {
 	url *url.URL
 }
 
-func (m maybeBzrSource) try(ctx context.Context, cachedir string) (source, error) {
+func (m maybeBzrSource) try(ctx context.Context, cachedir string) (Source, error) {
 	ustr := m.url.String()
 	path := sourceCachePath(cachedir, ustr)
 
@@ -165,7 +165,7 @@ type maybeHgSource struct {
 	url *url.URL
 }
 
-func (m maybeHgSource) try(ctx context.Context, cachedir string) (source, error) {
+func (m maybeHgSource) try(ctx context.Context, cachedir string) (Source, error) {
 	ustr := m.url.String()
 	path := sourceCachePath(cachedir, ustr)
 

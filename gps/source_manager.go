@@ -518,6 +518,18 @@ func (sm *SourceMgr) SyncSourceFor(id ProjectIdentifier) error {
 	return srcg.syncLocal(context.TODO())
 }
 
+func (sm *SourceMgr) SourceFor(id ProjectIdentifier) (Source, error) {
+	if atomic.LoadInt32(&sm.releasing) == 1 {
+		return nil, ErrSourceManagerIsReleased
+	}
+
+	srcg, err := sm.srcCoord.getSourceGatewayFor(context.TODO(), id)
+	if err != nil {
+		return nil, err
+	}
+	return srcg.src, nil
+}
+
 // ExportProject writes out the tree of the provided ProjectIdentifier's
 // ProjectRoot, at the provided version, to the provided directory.
 func (sm *SourceMgr) ExportProject(ctx context.Context, id ProjectIdentifier, v Version, to string) error {

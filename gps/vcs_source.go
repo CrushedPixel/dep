@@ -14,6 +14,7 @@ import (
 	"strings"
 
 	"github.com/Masterminds/semver"
+	"github.com/Masterminds/vcs"
 	"github.com/golang/dep/gps/pkgtree"
 	"github.com/golang/dep/internal/fs"
 	"github.com/pkg/errors"
@@ -45,6 +46,10 @@ func (*baseVCSSource) listVersionsRequiresLocal() bool {
 
 func (bs *baseVCSSource) upstreamURL() string {
 	return bs.repo.Remote()
+}
+
+func (bs *baseVCSSource) Repo() vcs.Repo {
+	return bs.repo
 }
 
 func (bs *baseVCSSource) disambiguateRevision(ctx context.Context, r Revision) (Revision, error) {

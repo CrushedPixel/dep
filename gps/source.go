@@ -11,6 +11,7 @@ import (
 	"log"
 	"sync"
 
+	"github.com/Masterminds/vcs"
 	"github.com/golang/dep/gps/pkgtree"
 	"github.com/pkg/errors"
 )
@@ -252,7 +253,7 @@ func (sc *sourceCoordinator) getSourceGatewayFor(ctx context.Context, id Project
 type sourceGateway struct {
 	cachedir string
 	srcState sourceState
-	src      source
+	src      Source
 	cache    singleSourceCache
 	mu       sync.Mutex // global lock, serializes all behaviors
 	suprvsr  *supervisor
@@ -260,7 +261,7 @@ type sourceGateway struct {
 
 // newSourceGateway returns a new gateway for src. If the source exists locally,
 // the local state may be cleaned, otherwise we ping upstream.
-func newSourceGateway(ctx context.Context, src source, superv *supervisor, cachedir string) (*sourceGateway, error) {
+func newSourceGateway(ctx context.Context, src Source, superv *supervisor, cachedir string) (*sourceGateway, error) {
 	var state sourceState
 	local := src.existsLocally(ctx)
 	if local {
@@ -645,10 +646,12 @@ func (sg *sourceGateway) require(ctx context.Context, wanted sourceState) (err e
 	return nil
 }
 
-// source is an abstraction around the different underlying types (git, bzr, hg,
+// Source is an abstraction around the different underlying types (git, bzr, hg,
 // svn, maybe raw on-disk code, and maybe eventually a registry) that can
 // provide versioned project source trees.
-type source interface {
+type Source interface {
+	Repo() vcs.Repo
+
 	existsLocally(context.Context) bool
 	existsUpstream(context.Context) bool
 	upstreamURL() string
